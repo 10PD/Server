@@ -1,0 +1,19 @@
+{
+  "name": "smartbell_server",
+  "version": "0.0.1",
+  "description": "Server for Smart dumbbell",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/10PD/Server.git"
+  },
+  "author": "George Markham",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/10PD/Server/issues"
+  },
+  "homepage": "https://github.com/10PD/Server#readme"
+}
