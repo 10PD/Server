@@ -17,3 +17,5 @@ var userSchema = new Schema({
     password: String,
     current_dumbell_id: String, 
 });
+
+module.exports = {workoutSchema, userSchema};
