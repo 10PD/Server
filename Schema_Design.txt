@@ -16,7 +16,3 @@ User_Schema = {
     "Password",
     "Current_Dumbbell"
 }
-
-Dumbbell_Schema = {
-    "_id"
-}
