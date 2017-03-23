@@ -1,0 +1,22 @@
+Workout_Schema = {
+    "_id",
+    "Dumbbell_Id",
+    "User_Id",
+    "Date",
+    "Workout",
+    "Reps",
+    "Form"
+}
+
+User_Schema = {
+    "_id",
+    "Workout Array", //Array of Workout IDs
+    "Date_Joined",
+    "Email",
+    "Password",
+    "Current_Dumbbell"
+}
+
+Dumbbell_Schema = {
+    "_id"
+}
