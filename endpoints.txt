@@ -1,4 +1,4 @@
 POST: /api/linkDumbbell/?id: {user_data} -> nothing //token?; ?id = dumbbell id (from QR code)
 POST: /api/workoutData: {workout_data} -> nothing
-GET: /api/workoutData: {token} -> {workout_data}
+GET: /api/workoutData/?id: {token} -> {workout_data} // ?id = user id
 POST: /api/authUser: {username, password} -> {token}
