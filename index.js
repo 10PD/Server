@@ -3,7 +3,7 @@ var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var router = express.Router();
-//mongoose.connect('mongodb://localhost/smartbell');
+mongoose.connect('mongodb://localhost/smartbell');
 
 var User = require('./models/user.js');
 var Workout = require('./models/workout');
@@ -26,9 +26,10 @@ router.post('/workoutData', function(req,res){
     var workout = req.body.workout;
     var reps = req.body.reps;
     var form = req.body.form;
+    console.log(req.headers);
     res.json({
         dumbbell_id: dumbellId,
-        user_id: "12345678",
+        user_id: userId,
         date: date,
         workout: workout,
         reps: reps,
@@ -54,10 +55,21 @@ router.get('/workoutData/:id', function(req,res){
     })
 })
 
-router.post('/api/authUser', function(req,res){
+router.post('/authUser', function(req,res){
     //authorise a user against database
 })
 
+router.post('/registerUser', function(req,res){
+    var userEmail = req.body.email;
+    var userPass = req.body.password;
+    //res.json({"Email": userEmail, "Password":userPass});
+    var newUser = new User({
+        email: userEmail,
+        password: userPass,
+        date_Joined: new Date()
+    });
+    newUser.save();
+})
 app.use('/api', router);
 
 app.listen(8080);
