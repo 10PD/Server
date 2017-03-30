@@ -2,8 +2,10 @@ var express = require('express');
 var app = express();
 var mongoose = require('mongoose');
 var router = express.Router();
+mongoose.connect('mongodb://localhost/smartbell');
 
-//mongoose.connect('mongodb://localhost/smartbell');
+var workoutModel = mongoose.model('Workout', schema.workout);
+//var user = new models.User();
 
 router.get('/', function(req,res){
     res.send("Hi there!");
