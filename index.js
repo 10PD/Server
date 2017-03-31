@@ -19,29 +19,49 @@ router.get('/linkDumbbell/:id', function(req,res){
 });
 router.post('/workoutData', function(req,res){
     //store workout data in database
-    var dumbellId = req.body.dumbellId;
-    //***search for user linked to dumbell id***
-    var userId = "184278743";
-    var date = new Date();
-    var workout = req.body.workout;
-    var reps = req.body.reps;
-    var form = req.body.form;
-    console.log(req.headers);
-    res.json({
-        dumbbell_id: dumbellId,
-        user_id: userId,
-        date: date,
-        workout: workout,
-        reps: reps,
-        form: form
+    var dumbellId = req.body.dumbell_id;
+    //res.json({"id": dumbellId});
+    User.findOne({"current_dumbell_id": dumbellId}, function(err, data){
+        if(err){
+            res.json({"status":"fail", "message": err});
+        } else {
+            //res.json(data);
+            var userId = data._id;
+            var date = new Date();
+            var workout = req.body.workout;
+            var reps = req.body.reps;
+            var form = req.body.form;
+            
+            var newWorkout = new Workout({
+                dumbbell_id: dumbellId,
+                user_id: userId,
+                date: date,
+                workout: workout,
+                reps: reps,
+                form: form
+            });
+            newWorkout.save(function(err, obj){
+                User.findOneAndUpdate({"_id":obj.user_id}, {$push:{"workouts":obj._id}}, function(err, data){
+                    if(err){
+                        res.json({"status":"fail", "message": err});
+                    } else {
+                        res.json(data);
+                    }
+                });
+            });
+        }
     });
-    console.log(dumbellId);
-    //res.json(req.body.dumbellId);
-
-    var newWorkout = new Workout({
-
-    })
 })
+
+/*res.json({
+    dumbbell_id: dumbellId,
+    user_id: userId,
+    date: date,
+    workout: workout,
+    reps: reps,
+    form: form
+});*/
+
 router.get('/workoutData/:id', function(req,res){
     //return workout data for a specific user
     var userId = req.params.id;
@@ -66,9 +86,17 @@ router.post('/registerUser', function(req,res){
     var newUser = new User({
         email: userEmail,
         password: userPass,
-        date_Joined: new Date()
+        date_Joined: new Date(),
+        current_dumbell_id:"1234567890"
     });
     newUser.save();
+    User.findOne({"email":userEmail}, function(err,data){
+        if(err){
+            res.json({"status":"fail", "message": err});
+        } else {
+            res.json(data);
+        }
+    })
 })
 app.use('/api', router);
 
