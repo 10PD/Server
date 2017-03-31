@@ -41,7 +41,7 @@ router.post('/workoutData', function(req,res){
                 form: form
             });
             newWorkout.save(function(err, obj){
-                User.findOneAndUpdate({"_id":obj.user_id}, {$push:{"workouts":obj._id}}, function(err, data){
+                User.findOneAndUpdate({"_id":obj.user_id}, {$set:{"current_dumbell_id":null}, $push:{"workouts":obj._id}}, function(err, data){
                     if(err){
                         res.json({"status":"fail", "message": err});
                     } else {
