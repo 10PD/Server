@@ -1,9 +1,15 @@
 var express = require('express');
-var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var jwt = require('jsonwebtoken');
+var config = require("./config.js");
+
+var app = express();
 var router = express.Router();
+
+app.set('secret', config.secret);
 mongoose.connect('mongodb://localhost/smartbell');
+
 
 var User = require('./models/user.js');
 var Workout = require('./models/workout');
@@ -89,14 +95,25 @@ router.post('/registerUser', function(req,res){
         date_Joined: new Date(),
         current_dumbell_id:"1234567890"
     });
-    newUser.save();
-    User.findOne({"email":userEmail}, function(err,data){
+    newUser.save(function(err,obj){
+        if(err){
+            res.json({"status":"fail", "message": err});
+        } else {
+            var token = jwt.sign(obj, app.get('secret'), {expiresIn: 1440});
+            res.json({
+                success: true,
+                message: 'Token generated for 24 hours',
+                token: token
+            });
+        }
+    });
+    /*User.findOne({"email":userEmail}, function(err,data){
         if(err){
             res.json({"status":"fail", "message": err});
         } else {
             res.json(data);
         }
-    })
+    })*/
 })
 app.use('/api', router);
 
