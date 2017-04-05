@@ -83,26 +83,6 @@ router.get('/workoutData/:id', function(req,res){
 //CHANGE TO ACT AS MIDDLEWARE
 router.post('/authUser', function(req,res){
     //authorise a user against database
-    jwt.verify(req.body.token, app.get('secret'), function(err, data){
-        if(err){
-            res.json({success:false, message:"Couldn't verify user", error: err, token: req.params.token});
-        } else {
-            var userId = data._doc._id;
-            User.findOne({"_id":userId}, function(err, user){
-            if(err){
-                res.json({"status":"fail", "message": err});
-            } else {
-                var token = jwt.sign(user, app.get('secret'), {expiresIn: 1440});
-                res.json({
-                    success: true,
-                    message: 'Token generated for 24 hours',
-                    token: token
-                });
-                //res.json({success:true, message: "user validated"});
-                }
-            })
-        }
-    })
 })
 
 router.post('/registerUser', function(req,res){
