@@ -14,7 +14,7 @@ mongoose.connect('mongodb://localhost/smartbell');
 var User = require('./models/user.js');
 var Workout = require('./models/workout');
 
-function checkToken(req)
+/*function checkToken(req)
 {
     console.log("Check hit");
     var token = req.body.token || req.headers['token'];
@@ -31,11 +31,11 @@ function checkToken(req)
                     return false;
                 } else {
                     var token = jwt.sign(user, app.get('secret'), {expiresIn: 1440});
-                    /*res.json({
+                    res.json({
                         success: true,
                         message: 'Token generated for 24 hours',
                         token: token
-                    });*/
+                    });
                     return true;
                     //res.json({success:true, message: "user validated"});
                     }
@@ -46,41 +46,26 @@ function checkToken(req)
         return false;
     }
 }
+*/
 
-function checkUnique(email)
+/*app.get("/api/workoutData", function(req, res, next)
 {
-    console.log(email);
-    User.find({"email": email}, function(err, data){
-        if(err)
-        {
-            console.log(err);
-            return true;
-        } else {
-            console.log(data.length);
-            if(data.length == 0){
-                console.log("trueeee");
-                return true;
-            } else {
-                console.log("false");
-                return false;
-            }
-        }
-    })
-}
-
-app.get("/api/workoutData", function(req, res, next)
-{
-    /*if(checkToken(req))
+    if(checkToken(req))
     {
         next();
     } else {
         res.json({"status": false, "message": "Please use a valid token next time"});
-    }*/
+    }
     jwt.verify(req.headers.token, app.get('secret'), function(err, data){
-       res.json(data._doc);
+        if(err){
+            res.json({"status": false, "message": err});
+        } else {
+            //res.json(data._doc);
+            next();
+        }
     })
     next();
-})
+})*/
 
 app.use(bodyParser.json());
 
@@ -129,16 +114,27 @@ router.post('/workoutData', function(req,res){
     });
 })
 
-router.get('/workoutData/:id', function(req,res){
+router.get('/workoutData/', function(req,res){
     //return workout data for a specific user
-    var userId = req.params.id;
-    res.json({
-        dumbbell_id: '123456',
-        user_id: userId,
-        date: '12/03/2017',
-        workout: 'Bicep Curl',
-        reps: '30',
-        form: '95'
+    jwt.verify(req.headers.token, app.get('secret'), function(err, data){
+        if(err){
+            res.json({"status": false, "message": err});
+        } else {
+            //res.json(data._doc.workouts);
+            var workoutIds = data._doc.workouts;
+            var workouts = new Array();
+            for(i = 0; i < workoutIds.length; i++){
+                Workout.findOne({_id: workoutIds[i]}, function(err, data){
+                    if(err){
+                        res.json({"status": false, "message": err});
+                    } else {
+                        //res.json({"status": true, "data": data});
+                        workouts.push(data);
+                    }
+                })
+            }
+            res.json({"status": true, "data": workouts});
+        }
     })
 })
 
