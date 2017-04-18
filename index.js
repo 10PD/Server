@@ -14,15 +14,58 @@ mongoose.connect('mongodb://localhost/smartbell');
 var User = require('./models/user.js');
 var Workout = require('./models/workout');
 
+function checkToken(req)
+{
+    if(req.body.token){
+        jwt.verify(req.body.token, app.get('secret'), function(err, data){
+            if(err){
+                //res.json({success:false, message:"Couldn't verify user", error: err, token: req.params.token});
+                return false;
+            } else {
+                var userId = data._doc._id;
+                User.findOne({"_id":userId}, function(err, user){
+                if(err){
+                    //res.json({"status":"fail", "message": err});
+                    return false;
+                } else {
+                    var token = jwt.sign(user, app.get('secret'), {expiresIn: 1440});
+                    /*res.json({
+                        success: true,
+                        message: 'Token generated for 24 hours',
+                        token: token
+                    });*/
+                    return true;
+                    //res.json({success:true, message: "user validated"});
+                    }
+                })
+            }
+        })
+    } else {
+        return false;
+    }
+}
+
+app.use("/api/workoutData", function(req, res, next)
+{
+    if(checkToken(req))
+    {
+        next();
+    } else {
+        res.json({"status": false, "message": "Please use a valid token next time"});
+    }
+})
+
 app.use(bodyParser.json());
 
 router.get('/', function(req,res){
     res.send("Hi there!");
 });
+
 router.get('/linkDumbbell/:id', function(req,res){
     var dumbellId = req.params.id;
     res.send(dumbellId);
 });
+
 router.post('/workoutData', function(req,res){
     //store workout data in database
     var dumbellId = req.body.dumbell_id;
@@ -49,7 +92,7 @@ router.post('/workoutData', function(req,res){
             newWorkout.save(function(err, obj){
                 User.findOneAndUpdate({"_id":obj.user_id}, {$set:{"current_dumbell_id":null}, $push:{"workouts":obj._id}}, function(err, data){
                     if(err){
-                        res.json({"status":"fail", "message": err});
+                        res.json({"status":false, "message": err});
                     } else {
                         res.json(data);
                     }
