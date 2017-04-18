@@ -16,7 +16,9 @@ var Workout = require('./models/workout');
 
 function checkToken(req)
 {
-    if(req.body.token){
+    console.log("Check hit");
+    var token = req.body.token || req.headers['token'];
+    if(token){
         jwt.verify(req.body.token, app.get('secret'), function(err, data){
             if(err){
                 //res.json({success:false, message:"Couldn't verify user", error: err, token: req.params.token});
@@ -45,14 +47,39 @@ function checkToken(req)
     }
 }
 
-app.use("/api/workoutData", function(req, res, next)
+function checkUnique(email)
 {
-    if(checkToken(req))
+    console.log(email);
+    User.find({"email": email}, function(err, data){
+        if(err)
+        {
+            console.log(err);
+            return true;
+        } else {
+            console.log(data.length);
+            if(data.length == 0){
+                console.log("trueeee");
+                return true;
+            } else {
+                console.log("false");
+                return false;
+            }
+        }
+    })
+}
+
+app.get("/api/workoutData", function(req, res, next)
+{
+    /*if(checkToken(req))
     {
         next();
     } else {
         res.json({"status": false, "message": "Please use a valid token next time"});
-    }
+    }*/
+    jwt.verify(req.headers.token, app.get('secret'), function(err, data){
+       res.json(data._doc);
+    })
+    next();
 })
 
 app.use(bodyParser.json());
@@ -102,15 +129,6 @@ router.post('/workoutData', function(req,res){
     });
 })
 
-/*res.json({
-    dumbbell_id: dumbellId,
-    user_id: userId,
-    date: date,
-    workout: workout,
-    reps: reps,
-    form: form
-});*/
-
 router.get('/workoutData/:id', function(req,res){
     //return workout data for a specific user
     var userId = req.params.id;
@@ -123,40 +141,64 @@ router.get('/workoutData/:id', function(req,res){
         form: '95'
     })
 })
-//CHANGE TO ACT AS MIDDLEWARE
+
 router.post('/authUser', function(req,res){
-    //authorise a user against database
+    var userEmail = req.body.email;
+    var userPass = req.body.password;
+
+    User.findOne({"email":userEmail}, function(err, data){
+        if(err){
+            res.json({"status":"fail", "message": err});
+        } else {
+            if(userPass = data.password)
+            {
+                var token = jwt.sign(data, app.get('secret'), {expiresIn: 1440});
+                res.json({
+                    success: true,
+                    message: 'Token generated for 24 hours',
+                    token: token
+                });
+            }
+        }
+    })
 })
 
 router.post('/registerUser', function(req,res){
     var userEmail = req.body.email;
     var userPass = req.body.password;
-    //res.json({"Email": userEmail, "Password":userPass});
-    var newUser = new User({
-        email: userEmail,
-        password: userPass,
-        date_Joined: new Date(),
-        current_dumbell_id:"1234567890"
-    });
-    newUser.save(function(err,obj){
-        if(err){
-            res.json({"status":"fail", "message": err});
+
+    User.find({"email": userEmail}, function(err, data){
+        if(err)
+        {
+            console.log(err);
         } else {
-            var token = jwt.sign(obj, app.get('secret'), {expiresIn: 1440});
-            res.json({
-                success: true,
-                message: 'Token generated for 24 hours',
-                token: token
-            });
+            console.log(data.length);
+            if(data.length == 0){
+                console.log("true");
+                var newUser = new User({
+                    email: userEmail,
+                    password: userPass,
+                    date_Joined: new Date(),
+                    current_dumbell_id:""
+                });
+                newUser.save(function(err,obj){
+                    if(err){
+                        res.json({"status":"fail", "message": err});
+                    } else {
+                        var token = jwt.sign(obj, app.get('secret'), {expiresIn: 1440});
+                        res.json({
+                            success: true,
+                            message: 'Token generated for 24 hours',
+                            token: token
+                        });
+                    }
+                });
+            } else {
+                console.log("false");
+                res.json({"status": false, "message":"According to us you already exists, try a different email"});
+            }
         }
-    });
-    /*User.findOne({"email":userEmail}, function(err,data){
-        if(err){
-            res.json({"status":"fail", "message": err});
-        } else {
-            res.json(data);
-        }
-    })*/
+    })
 })
 app.use('/api', router);
 
