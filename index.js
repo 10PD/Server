@@ -160,6 +160,7 @@ router.post('/authUser', function(req,res){
 })
 
 router.post('/registerUser', function(req,res){
+    var userName = req.body.name;
     var userEmail = req.body.email;
     var userPass = req.body.password;
 
@@ -172,6 +173,7 @@ router.post('/registerUser', function(req,res){
             if(data.length == 0){
                 console.log("true");
                 var newUser = new User({
+                    name: userName,
                     email: userEmail,
                     password: userPass,
                     date_Joined: new Date(),
