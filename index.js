@@ -74,8 +74,25 @@ router.get('/', function(req,res){
 });
 
 router.get('/linkDumbbell/:id', function(req,res){
-    var dumbellId = req.params.id;
-    res.send(dumbellId);
+    var dumbbellId = req.params.id;
+    jwt.verify(req.headers.token, app.get('secret'), function(err, data){
+        if(err){
+            res.json({"status": false, "message": err});
+        } else {
+            var userId = data._doc._id;
+            User.findOneAndUpdate({"_id":userId}, {$set:{"current_dumbell_id":dumbbellId}}, function(err, data){
+                    if(err){
+                        res.json({"status":false, "message": err});
+                    } else {
+                        if(data){
+                            res.json({"status": true, "message": "Dumbbell linked"});
+                        } else {
+                            res.json({"status": false, "message": "Dumbbell not linked"});
+                        }
+                    }
+                });
+        }
+    })
 });
 
 router.post('/workoutData', function(req,res){
@@ -200,4 +217,4 @@ router.post('/registerUser', function(req,res){
 })
 app.use('/api', router);
 
-app.listen(8080);
+app.listen(80);
