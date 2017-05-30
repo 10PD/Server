@@ -5,7 +5,7 @@ var userSchema = new mongoose.Schema({
     workouts: [String],
     date_Joined: Date,
     name: String,
-    email: {type : String , unique : true},
+    email: String,
     password: String,
     current_dumbell_id: String, 
 });

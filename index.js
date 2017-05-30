@@ -163,7 +163,11 @@ router.post('/authUser', function(req,res){
         if(err){
             res.json({"status":"fail", "message": err});
         } else {
-            res.json(data);
+            if(data.length > 0){
+                res.json(data);
+            } else {
+                res.json({"status":"fail", "message": "Sorry, we couldn't find you"});
+            }
             /*if(userPass = data.password){
                 var token = jwt.sign(data, app.get('secret'), {expiresIn: 1440});
                 res.json({
