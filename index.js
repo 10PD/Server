@@ -163,10 +163,10 @@ router.post('/authUser', function(req,res){
         if(err){
             res.json({"status":"fail", "message": err});
         } else {
-            if(data.length > 0){
-                res.json(data);
-            } else {
+            if(data == null){
                 res.json({"status":"fail", "message": "Sorry, we couldn't find you"});
+            } else {
+                res.json(data);
             }
             /*if(userPass = data.password){
                 var token = jwt.sign(data, app.get('secret'), {expiresIn: 1440});
@@ -221,4 +221,4 @@ router.post('/registerUser', function(req,res){
 })
 app.use('/api', router);
 
-app.listen(8080);
+app.listen(80);
