@@ -168,14 +168,14 @@ router.post('/authUser', function(req,res){
             } else {
                 res.json(data);
             }
-            /*if(userPass = data.password){
+            if(userPass = data.password){
                 var token = jwt.sign(data, app.get('secret'), {expiresIn: 1440});
                 res.json({
                     success: true,
                     message: 'Token generated for 24 hours',
                     token: token
                 });
-            }*/
+            }
         }
     })
 })
