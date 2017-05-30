@@ -163,15 +163,15 @@ router.post('/authUser', function(req,res){
         if(err){
             res.json({"status":"fail", "message": err});
         } else {
-            if(userPass = data.password)
-            {
+            res.json(data);
+            /*if(userPass = data.password){
                 var token = jwt.sign(data, app.get('secret'), {expiresIn: 1440});
                 res.json({
                     success: true,
                     message: 'Token generated for 24 hours',
                     token: token
                 });
-            }
+            }*/
         }
     })
 })
@@ -217,4 +217,4 @@ router.post('/registerUser', function(req,res){
 })
 app.use('/api', router);
 
-app.listen(80);
+app.listen(8080);
