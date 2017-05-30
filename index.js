@@ -27,7 +27,7 @@ var Workout = require('./models/workout');
                 var userId = data._doc._id;
                 User.findOne({"_id":userId}, function(err, user){
                 if(err){
-                    //res.json({"status":"fail", "message": err});
+                    //res.json({success:false, "message": err});
                     return false;
                 } else {
                     var token = jwt.sign(user, app.get('secret'), {expiresIn: 1440});
@@ -54,11 +54,11 @@ var Workout = require('./models/workout');
     {
         next();
     } else {
-        res.json({"status": false, "message": "Please use a valid token next time"});
+        res.json({success: false, "message": "Please use a valid token next time"});
     }
     jwt.verify(req.headers.token, app.get('secret'), function(err, data){
         if(err){
-            res.json({"status": false, "message": err});
+            res.json({success: false, "message": err});
         } else {
             //res.json(data._doc);
             next();
@@ -77,17 +77,17 @@ router.get('/linkDumbbell/:id', function(req,res){
     var dumbbellId = req.params.id;
     jwt.verify(req.headers.token, app.get('secret'), function(err, data){
         if(err){
-            res.json({"status": false, "message": err});
+            res.json({success: false, "message": err});
         } else {
             var userId = data._doc._id;
             User.findOneAndUpdate({"_id":userId}, {$set:{"current_dumbell_id":dumbbellId}}, function(err, data){
                     if(err){
-                        res.json({"status":false, "message": err});
+                        res.json({success:false, "message": err});
                     } else {
                         if(data){
-                            res.json({"status": true, "message": "Dumbbell linked"});
+                            res.json({success: true, "message": "Dumbbell linked"});
                         } else {
-                            res.json({"status": false, "message": "Dumbbell not linked"});
+                            res.json({success: false, "message": "Dumbbell not linked"});
                         }
                     }
                 });
@@ -101,7 +101,7 @@ router.post('/workoutData', function(req,res){
     //res.json({"id": dumbellId});
     User.findOne({"current_dumbell_id": dumbellId}, function(err, data){
         if(err){
-            res.json({"status":"fail", "message": err});
+            res.json({success:false, "message": err});
         } else {
             //res.json(data);
             var userId = data._id;
@@ -121,7 +121,7 @@ router.post('/workoutData', function(req,res){
             newWorkout.save(function(err, obj){
                 User.findOneAndUpdate({"_id":obj.user_id}, {$set:{"current_dumbell_id":null}, $push:{"workouts":obj._id}}, function(err, data){
                     if(err){
-                        res.json({"status":false, "message": err});
+                        res.json({success:false, "message": err});
                     } else {
                         res.json(data);
                     }
@@ -135,7 +135,7 @@ router.get('/workoutData/', function(req,res){
     //return workout data for a specific user
     jwt.verify(req.headers.token, app.get('secret'), function(err, data){
         if(err){
-            res.json({"status": false, "message": err});
+            res.json({success: false, "message": err});
         } else {
             //res.json(data._doc.workouts);
             var workoutIds = data._doc.workouts;
@@ -143,14 +143,14 @@ router.get('/workoutData/', function(req,res){
             for(i = 0; i < workoutIds.length; i++){
                 Workout.findOne({_id: workoutIds[i]}, function(err, data){
                     if(err){
-                        res.json({"status": false, "message": err});
+                        res.json({success: false, "message": err});
                     } else {
-                        //res.json({"status": true, "data": data});
+                        //res.json({success: true, "data": data});
                         workouts.push(data);
                     }
                 })
             }
-            res.json({"status": true, "data": workouts});
+            res.json({success: true, "data": workouts});
         }
     })
 })
@@ -161,10 +161,16 @@ router.post('/authUser', function(req,res){
 
     User.findOne({"email":userEmail}, function(err, data){
         if(err){
-            res.json({"status":"fail", "message": err});
+            res.json({
+                    success: false, 
+                    message: err
+            });
         } else {
             if(data == null){
-                res.json({"status":"fail", "message": "Sorry, we couldn't find you"});
+                res.json({
+                    success: false, 
+                    message: "Sorry, we couldn't find you"
+            });
             } else {
                 //res.json(data);
                 if(userPass = data.password){
@@ -202,7 +208,7 @@ router.post('/registerUser', function(req,res){
                 });
                 newUser.save(function(err,obj){
                     if(err){
-                        res.json({"status":"fail", "message": err});
+                        res.json({success:false, "message": err});
                     } else {
                         var token = jwt.sign(obj, app.get('secret'), {expiresIn: 1440});
                         res.json({
@@ -214,7 +220,7 @@ router.post('/registerUser', function(req,res){
                 });
             } else {
                 console.log("false");
-                res.json({"status": false, "message":"According to us you already exists, try a different email"});
+                res.json({success: false, "message":"According to us you already exists, try a different email"});
             }
         }
     })
